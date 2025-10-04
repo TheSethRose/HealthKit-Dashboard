@@ -1,0 +1,59 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String       @id @default(cuid())
+  email      String       @unique
+  password   String
+  name       String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  healthData HealthData[]
+
+  @@index([email])
+}
+
+model HealthData {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  timestamp       DateTime
+  
+  // Activity data
+  steps           Int?
+  
+  // Heart rate samples (array of {value, startDate, endDate})
+  heartRate       Json?
+  
+  // Sleep samples (array of {value, startDate, endDate, sourceName})
+  sleep           Json?
+  
+  // Workouts (array of workout objects)
+  workouts        Json?
+  
+  // Activity summary (move, exercise, stand rings)
+  activitySummary Json?
+  
+  // Body measurements
+  bodyMeasurements Json?
+  
+  // Vital signs (blood pressure, temperature, etc.)
+  vitalSigns      Json?
+  
+  // Nutrition data
+  nutrition       Json?
+  
+  createdAt       DateTime @default(now())
+
+  @@index([userId, timestamp])
+  @@index([timestamp])
+}
